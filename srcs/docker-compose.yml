@@ -1,11 +1,38 @@
+# DOCKER-COMPOSE file is used to define and run multi-container Docker applications
+
 services:
 
   # MARIADB ----------------------------------------------------------------------------
   # this container does not depend on any other, so it should be the first to be created
 
   mariadb:
+    # service name
     container_name: mariadb
-    # location of the container mariadb
+    # relative location of Dockerfile used to build the Docker image for mariadb service; 
+    # defines the build process for Docker image
+    build: ./requirements/mariadb/
+    # location where mariadb DB files will be stored;
+    # ensures that data persists across container restarts
+    # volume that maps a named volume 'database' to the directory /var/lib/mysql/ inside the container
+    volumes:
+      - database:/var/lib/mysql/
+    # network(s) joined by mariadb
+    # the all network should be defined elsewhere in this Docker Compose file
+    networks:
+      - all
+    # runs the setup.sh (initialization) shell script before starting the main process of the container
+    init: true
+    # restarts the container when a failure occur (if it exits with a non-zero code) - restart policy
+    restart: on-failure
+    # file from which to read environment variables
+    env_file:
+      - .env
+
+  # WORDPRESS --------------------------------------------------------------------------
+  # this container depends exclusively on mariadb cmariadb:
+    # service name
+    container_name: mariadb
+    # location of the container mariadb; defines the build process for Docker image
     build: ./requirements/mariadb/
     # location where DB files will be saved
     volumes:
@@ -20,25 +47,28 @@ services:
     # file in which the environment variables can be found
     env_file:
       - .env
-
-  # WORDPRESS --------------------------------------------------------------------------
-  # this container depends exclusively on mariadb container, so it should start next
+ontainer, so it should start next
 
   wordpress:
+    # service name
     container_name: wordpress
-    # location of the container wordpress
+    # relative location of Dockerfile used to build the Docker image for wordpress service; 
+    # defines the build process for Docker image
     build: ./requirements/wordpress/
-    # location where DB files will be saved
+    # location where wordpress DB files will be stored;
+    # ensures that data persists across container restarts;
+    # volume that maps a named volume 'wpfiles' to the directory /var/www/inception/ inside the container
     volumes:
-      - wordpress_files:/var/www/inception/
-    # network used by wordpress
+      - wpfiles:/var/www/inception/
+    # network(s) joined by wordpress
+    # the all network should be defined elsewhere in the Docker Compose file
     networks:
       - all
-    # runs the setup.sh shell script
+    # runs the setup.sh (initialization) shell script before starting the mains process of the container
     init: true
-    # restarts the container when a failure occur
+    # restarts the container when a failure occur (if it exits with a non-zero code) - restart policy
     restart: on-failure
-    # file in which the environment variables can be found
+    # file from which to read environment variables
     env_file:
       - .env
     # all container dependencies for wordpress; 
@@ -52,11 +82,17 @@ services:
   # in the build moment with show the private informations that where in the .env file
   
   nginx:
+    # service name
     container_name: nginx
-    # location of the container nginx
+    # defines the build process for Docker image
     build:
+      # specifies the directory containing the Dockerfile and other importante files from the nginx container
       context: ./requirements/nginx/
+      # the args sub-section allows passing build-time variables to the Docker build process
+      # this variables are referenced in the Dockerfile using  ARG instructions
       args:
+        # this variables values are taken from the environment
+        # these arguments are usually used to configure SSL certificates and other setting necessary for the nginx service
         CERT_FOLDER: ${CERT_FOLDER}
         CERTIFICATE: ${CERTIFICATE}
         KEY: ${KEY}
@@ -68,14 +104,20 @@ services:
         COMMON_NAME: ${COMMON_NAME}
     ports:
       - '443:443'
+    # location where DB files will be saved
     volumes:
       - wordpress_files:/var/www/inception/
+    # network used by nginx
     networks:
       - all
     init: true
+    # restarts the container when a failure occur
     restart: on-failure
+    # file in which the environment variables can be found
     env_file:
       - .env
+    # all container dependencies for nginx;
+    # indicates that this container does not start before the wordpress container is running
     depends_on:
       - wordpress
 

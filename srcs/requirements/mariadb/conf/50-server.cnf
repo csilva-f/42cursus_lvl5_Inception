@@ -1,3 +1,5 @@
+# This configuration snippet is a MySQL/MariaDB configuration file that defines various settings and parameters for the MariaDB server.
+
 #
 # These groups are read by MariaDB server.
 # Use it for options that only the server (but not clients) should see
@@ -6,6 +8,8 @@
 #
 
 # this is read by the standalone daemon and embedded servers
+# standalone daemon: typical deployment scenario where mariadb is installed and running as a dedicated DB server process; in this mode the DB server operates independently, serving client requests over network connections or locally via Unix sockets
+# embebed server: DB engine can run within the same process space as the app itself, rather than as a separate standalone process; this mode is useful for apps that requeire lightweight, integrated DB solution without the overhead of a separate DB server process
 [server]
 
 # this is only for the mysqld standalone daemon
@@ -14,14 +18,24 @@
 #
 # * Basic Settings
 #
+# these setting ensure the proper operation, performance and security of the DB server
 user		= mysql
+# path to the PID file for the running MariaDB server process
 pid-file	= /run/mysqld/mysqld.pid
+# defines the Unix socket file used for the local client-server communication (inside a network)
+# enables a secure communication between the MariaDB clients and the server running on the same host without involving a network itself
 socket		= /run/mysqld/mysqld.sock
+# specifies the TCP/IP (logical endpoint for communication in a network) port number on which the server listens for client connections
 port		= 3306
+# base directory where MariaDB binaries and libraries are located
 basedir		= /usr
+# directory where MariaDB stores its database
 datadir		= /var/lib/mysql
+# directory used for temporary files
 tmpdir		= /tmp
+# directory containing language-specific error message files
 lc-messages-dir	= /usr/share/mysql
+# if uncommented, is used to disable external locking; unrecommended to enable it
 # skip-external-locking
 
 # Instead of skip-networking the default is now to listen only on
@@ -31,12 +45,14 @@ lc-messages-dir	= /usr/share/mysql
 #
 # * Fine Tuning
 #
+# these lines can be adjusted to fine-tune MariaDB's performance and resource usage
 # key_buffer_size		= 16M
 # max_allowed_packet	= 16M
 # thread_stack		= 192K
 # thread_cache_size       = 8
 # This replaces the startup script and checks MyISAM tables if needed
 # the first time they are touched
+# this means that the DB server should attempt to perform automatic backup and repair operations to tabled that were left in an inconsistent state due to abnormal shutdown or crash
 myisam_recover_options  = BACKUP
 #max_connections        = 100
 #table_cache            = 64
@@ -44,13 +60,16 @@ myisam_recover_options  = BACKUP
 
 #
 # * Query Cache Configuration
-#
+# configures query cache size which determines how much memory is allocated for caching query results
+# this line allows setting a limit on individual query results that are cached
 # query_cache_limit	= 1M
+# specifies the size of the query cache for the SELECT queries
 query_cache_size        = 16M
 
 #
 # * Logging and Replication
 #
+# configures several logging options and settings to binary logging which are important for replication and backup strategies
 # Both location gets rotated by the cronjob.
 # Be aware that this log type is a performance killer.
 # As of 5.1 you can enable the log at runtime!
@@ -58,7 +77,7 @@ query_cache_size        = 16M
 #general_log             = 1
 #
 # Error log - should be very few entries.
-#
+# this parameter specifies the location where errors encountered by the DB server are logged
 log_error = /var/log/mysql/error.log
 #
 # Enable the slow query log to see queries with especially long duration
@@ -73,6 +92,7 @@ log_error = /var/log/mysql/error.log
 #       other settings you may need to change.
 #server-id		= 1
 #log_bin			= /var/log/mysql/mysql-bin.log
+# specifies how long binary log files should be retained before being automatically deleted
 expire_logs_days	= 10
 #max_binlog_size   = 100M
 #binlog_do_db		= include_database_name
@@ -108,7 +128,10 @@ expire_logs_days	= 10
 # MySQL/MariaDB default is Latin1, but in Debian we rather default to the full
 # utf8 4-byte character set. See also client.cnf
 #
+# this section defines how data is stored and sorted within the database
+# defines the character set encoding used for storing data in the database server; utf8mb4 is a Unicode character set that supports a wide range of characters (recommended)
 character-set-server  = utf8mb4
+# defines how data is sorted and compared within the DB server; utf8mb4... is a collation that is case-insensitive (ci), so it treats uppercase and lowercase letter as equivalent
 collation-server      = utf8mb4_general_ci
 
 #
@@ -121,6 +144,7 @@ collation-server      = utf8mb4_general_ci
 # See https://mariadb.com/kb/en/unix_socket-authentication-plugin/
 
 # this is only for embedded server
+# denotes that this section is dedicated to configuring DB settings specific to embedded deployments within other software applications
 [embedded]
 
 # This group is only read by MariaDB servers, not by MySQL.
@@ -128,7 +152,7 @@ collation-server      = utf8mb4_general_ci
 # you can put MariaDB-only options here
 [mariadb]
 
-# This group is only read by MariaDB-10.1 servers.
+# This group is only read by MariaDB-10.3 servers.
 # If you use the same .cnf file for MariaDB of different versions,
 # use this group for options that older servers don't understand
 [mariadb-10.3]
