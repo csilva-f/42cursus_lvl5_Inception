@@ -20,15 +20,15 @@
 # this line, if uncommented, enables the debug mode, making the script print each command executing it and exit if any of it returns a non-zero status
 # set -ex # print commands & exit on error (debug mode)
 
-WP_URL=login.42.fr
-WP_TITLE=Inception
-WP_ADMIN_USER=wpadmin
-WP_ADMIN_PASSWORD=abc
-WP_ADMIN_EMAIL=wpadmin@123.com
-WP_USER=wpuser
-WP_PASSWORD=abc
-WP_EMAIL=wpuser@123.com
-WP_ROLE=editor
+# WP_URL=login.42.fr
+# WP_TITLE=Inception
+# WP_ADMIN_USER=wpadmin
+# WP_ADMIN_PASSWORD=abc
+# WP_ADMIN_EMAIL=wpadmin@123.com
+# WP_USER=wpuser
+# WP_PASSWORD=abc
+# WP_EMAIL=wpuser@123.com
+# WP_ROLE=editor
 
 # changes ownership of /var/www/inception/ directory and its contents to www-data user and group to ensure proper permissions
 # it is needed because the web server process runs under a specific user and group, so it must have read and execute permissions on web files

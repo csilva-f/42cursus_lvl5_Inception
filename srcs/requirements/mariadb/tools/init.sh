@@ -11,10 +11,10 @@
 # this line, if uncommented, enables the debug mode, making the script print each command executing it and exit if any of it returns a non-zero status
 # set -ex # print commands & exit on error (debug mode)
 
-DB_NAME=maria
-DB_USER=umaria
-DB_PASSWORD=abc
-DB_PASS_ROOT=cba
+# DB_NAME=maria
+# DB_USER=umaria
+# DB_PASSWORD=abc
+# DB_PASS_ROOT=cba
 
 # starts the mariadb within the container and ensures it is running so that the subsequent commands can interact with the database
 service mariadb start

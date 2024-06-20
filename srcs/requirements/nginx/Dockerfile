@@ -27,7 +27,7 @@ COPY	tools/init.sh		/tmp/init.sh
 COPY	conf/server.conf	/etc/nginx/available-sites/default
 
 # sets permissions to read, write and execute the init file copied to the temporary directory
-RUN		chown 755 /tmp/init.sh
+RUN		chmod 755 /tmp/init.sh
 
 # specifies the commands to run when the container starts
 CMD		["/tmp/init.sh"]
