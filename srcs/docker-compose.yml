@@ -8,6 +8,7 @@ services:
   mariadb:
     # service name
     container_name: mariadb
+    # image: mariadb
     # relative location of Dockerfile used to build the Docker image for mariadb service; 
     # defines the build process for Docker image
     build: ./requirements/mariadb/
@@ -16,10 +17,12 @@ services:
     # volume that maps a named volume 'database' to the directory /var/lib/mysql/ inside the container
     volumes:
       - database:/var/lib/mysql/
+    ports:
+      - '3306:3306'
     # network(s) joined by mariadb
     # the all network should be defined elsewhere in this Docker Compose file
     networks:
-      - all
+      - incep
     # runs the setup.sh (initialization) shell script before starting the main process of the container
     init: true
     # restarts the container when a failure occur (if it exits with a non-zero code) - restart policy
@@ -30,28 +33,11 @@ services:
 
   # WORDPRESS --------------------------------------------------------------------------
   # this container depends exclusively on mariadb cmariadb:
-    # service name
-    container_name: mariadb
-    # location of the container mariadb; defines the build process for Docker image
-    build: ./requirements/mariadb/
-    # location where DB files will be saved
-    volumes:
-      - database:/var/lib/mysql/
-    # network used by mariadb
-    networks:
-      - all
-    # runs the setup.sh shell script 
-    init: true
-    # restarts the container when a failure occur
-    restart: on-failure
-    # file in which the environment variables can be found
-    env_file:
-      - .env
-ontainer, so it should start next
 
   wordpress:
     # service name
     container_name: wordpress
+    # image: wordpress
     # relative location of Dockerfile used to build the Docker image for wordpress service; 
     # defines the build process for Docker image
     build: ./requirements/wordpress/
@@ -60,10 +46,12 @@ ontainer, so it should start next
     # volume that maps a named volume 'wpfiles' to the directory /var/www/inception/ inside the container
     volumes:
       - wpfiles:/var/www/inception/
+    ports:
+      - '9000:9000'
     # network(s) joined by wordpress
     # the all network should be defined elsewhere in the Docker Compose file
     networks:
-      - all
+      - incep
     # runs the setup.sh (initialization) shell script before starting the mains process of the container
     init: true
     # restarts the container when a failure occur (if it exits with a non-zero code) - restart policy
@@ -84,9 +72,11 @@ ontainer, so it should start next
   nginx:
     # service name
     container_name: nginx
+    # image: nginx
+    # relative location of Dockerfile used to build the Docker image for nginx service;
     # defines the build process for Docker image
     build:
-      # specifies the directory containing the Dockerfile and other importante files from the nginx container
+      # specifies the directory containing the Dockerfile and other important files from the nginx container
       context: ./requirements/nginx/
       # the args sub-section allows passing build-time variables to the Docker build process
       # this variables are referenced in the Dockerfile using  ARG instructions
@@ -102,14 +92,18 @@ ontainer, so it should start next
         ORGANIZATION: ${ORGANIZATION}
         UNIT: ${UNIT}
         COMMON_NAME: ${COMMON_NAME}
+    # maps port 443 on the host machine to port 443 in the container;
+    # port 443 is the standard port for HTTPS traffic , commonly used by nginx when serving secure content
     ports:
       - '443:443'
-    # location where DB files will be saved
+    # location where nginx DB files will be stored;
+    # ensures that data persists across container restarts;
+    # volume that maps a named volume 'wpfiles' to the directory /var/www/inception/ inside the container
     volumes:
-      - wordpress_files:/var/www/inception/
+      - wpfiles:/var/www/inception/
     # network used by nginx
     networks:
-      - all
+      - incep
     init: true
     # restarts the container when a failure occur
     restart: on-failure
@@ -121,35 +115,52 @@ ontainer, so it should start next
     depends_on:
       - wordpress
 
-# volumes --------------------------------------------------------------------
+# VOLUMES ---------------------------------------------------------------------------------------
+# define volumes used by services for data persistance - keep data consistens between containers
+# acts like a shared hard drive between the containers and the host machine
+# enables data to be stored outside the container's writable layer, ensuring that data remains intact and available even if the container is stopped, removed or recreated (beyind the container's lifecycle)
+# allows decoupling data from containers - makes it easier to update or replace containers withou losing important data
 
-# keeps the data shared between the containers
-# it acts like a shared hard drive between the containers and the host machine
-# device: where the data will be stored in the host machine
 volumes:
-
-  # keeps the database
+  # name of the volume - used by services to refer to this specific volume
   database:
+    # specifies that the volume uses the local driver;
+    # the volume will be stored on the local filesystem of the Docker host
     driver: local
+    # provides options for the local driver
     driver_opts:
+      # indicates that the volume should not use any specific filesystem type, allowing for a direct bind mount
       type: none
+      # specifies that the volume should be a bind mount - directly mounts a directory from the host filesystem into the container
       o: bind
-      device: ~/data/database
+      # specifies the host directory to be mounted;
+      # is the path on the host filesystem that will be bound to the volume
+      device: /home/csilva-f/data/database
 
-  # keeps the wordpress files
-  wordpress_files:
+  # wordpress files volume
+  # wpfiles is the name of the volume; it is used by services to refer to this specific volume
+  wpfiles:
+    # specifies that the volume uses the local driver - volume stored on the local filesystem of the Docker host
     driver: local
+    # options for the local driver
     driver_opts:
+      # indicates that the volume should not use any specific filesystem type, allowing direct mount
       type: none
+      # specifies that the volume should be a bind mount - directly mounts a directory from the host filesystem into the container
       o: bind
-      device: ~/data/wordpress_files
+      # specifies the host directory to be mounted;
+      # is the path on the host filesystem that will be bound to the volume
+      device: /home/csilva-f/data/wpfiles
 
-# networks --------------------------------------------------------------------
-
-# this network is used to connect the containers
+# NETWORKS --------------------------------------------------------------------------------------
+# this section provides a structured way to define and manage networks for the application's containers
+# ensures isolation and controls communication between services
+# simplifies scaling and service discovery, and allows for custom network configurations
+# enhances security, scalability and manageability od the applications
 # it acts like a virtual switch between the containers
-# all is the name of the network
-# bridge is the type of the network
+
 networks:
-  all:
+  # network name 
+  incep:
+    # default driver used; enables isolated communication between containers attached to this network on the same Docker host
     driver: bridge

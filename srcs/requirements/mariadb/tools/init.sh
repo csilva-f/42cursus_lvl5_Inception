@@ -4,8 +4,8 @@
 
 # this file script automates the setup and configuration tasks required to prepare the service inside the container; ensures the environment is correctly set up each time the container starts
 # by automating the initialization steps, the script ensures the container env is consistent and reproducible accross different deployments
-# # can read env variables and use them to configure the service, allowing the same container image to be used in multiple environments with different configurations
-# # allows starting the database, and sets up its databases, users and permissions, loading initial data and configurations
+# can read env variables and use them to configure the service, allowing the same container image to be used in multiple environments with different configurations
+# allows starting the database, and sets up its databases, users and permissions, loading initial data and configurations
 # this script integrates with the container's CMD instruction to run the main application process after the initialization steps are completed, ensuring that the application starts in a properly configured state
 
 # this line, if uncommented, enables the debug mode, making the script print each command executing it and exit if any of it returns a non-zero status

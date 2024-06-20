@@ -12,7 +12,7 @@ FROM    debian:bullseye
 # the word EXPOSE doesn't publish the port, it only indicates which ports are intended to be published
 # allows services running inside the container to be accessible outside of it (such as the PHP-FPM)
 # informs docker compose about the ports that need to be connected between containers
-EXPOSE	9000
+# EXPOSE	9000
 
 # defines a build-time variables which sets the version and path to the PHP-FPM configuration directory
 ARG		PHP_VERSION=7.4
@@ -46,6 +46,9 @@ RUN		apt update && apt install --no-install-recommends --no-install-suggests -y 
 # stops the PHP-FPM service if it's running; might be necessary to apply configuration changes before restarting it later
 # RUN		service php${PHP_VERSION}-fpm stop
 
+# Create necessary directories and set permissions
+# RUN mkdir -p /var/www/html
+
 # copies the custom PHP-FPM pool configuration file from the host machine into the container at the specified path
 # ensures that PHP-FPM is configured correctly. this step is crucial for tuning PHP-FPM's behaviour and settings
 COPY	conf/www.conf ${PHPPATH}/pool.d/
@@ -64,10 +67,13 @@ RUN		chown -R www-data:www-data /var/www/inception/
 
 # copies the wp-config.php and init.sh files to the container and changes their permissions
 # it prepares the container for configuring and running WordPress upon startup
-COPY	conf/wp-config.php /tmp/
-COPY	tools/init.sh /bin/
+COPY	conf/wp-config.php 	/tmp/
+COPY	tools/init.sh 		/bin/
+COPY	conf/www.conf 		/tmp/
 
-RUN		chmod +x /bin/init.sh
+RUN chmod 755 /tmp/www.conf
+RUN chmod 755 /bin/init.sh
+RUN chmod 755 /tmp/wp-config.php
 
 # runs the init.sh script when the container starts
 # then starts the php.fpm7.4 in the foreground - PHP FastCGI Process Manager, a daemon that manages FastCGI processes for handling PHP requests.

@@ -1,7 +1,4 @@
 # Dockerfile responsible to build the image for the mariadb container
-# it installs mariadb-server only and copies the configuration file
-# the EXPOSE port is 3306 its a way to tell docker that the container will use this port
-# at the end it runs the setup.sh and start the mysql
 
 # speficies the base image for the Docker image - Debian with the Bullseye release (which is the one previous to the latest stable version)
 # it sets up the starting point for building the Docker image (Debian 11)
@@ -11,7 +8,7 @@ FROM	debian:bullseye
 # informs Docker that the container will be listening on port 3306 at runtime
 # the word EXPOSE doesn't publish the port, it only indicates which ports are intended to be published
 # allows services running inside the container to be accessible outside of it; informs docker compose about the ports that need to be connected between containers
-EXPOSE	3306
+# EXPOSE	3306
 
 # runs shell commands inside the Docker image
 # apt update: updates the package index inside the Docker image - ensures latest version of the packages
