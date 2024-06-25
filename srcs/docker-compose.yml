@@ -7,18 +7,20 @@ services:
 
   mariadb:
     # service name
-    container_name: mariadb
-    # image: mariadb
+    container_name: mariadb_cont
+    image: mariadb:latest
     # relative location of Dockerfile used to build the Docker image for mariadb service; 
     # defines the build process for Docker image
-    build: ./requirements/mariadb/
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
     # location where mariadb DB files will be stored;
     # ensures that data persists across container restarts
     # volume that maps a named volume 'database' to the directory /var/lib/mysql/ inside the container
     volumes:
-      - database:/var/lib/mysql/
+      - database:/var/lib/mysql
     ports:
-      - '3306:3306'
+      - "3306:3306"
     # network(s) joined by mariadb
     # the all network should be defined elsewhere in this Docker Compose file
     networks:
@@ -29,7 +31,7 @@ services:
     restart: on-failure
     # file from which to read environment variables
     env_file:
-      - .env
+      - ./.env
 
   # WORDPRESS --------------------------------------------------------------------------
   # this container depends exclusively on mariadb cmariadb:
@@ -37,28 +39,28 @@ services:
   wordpress:
     # service name
     container_name: wordpress
-    # image: wordpress
+    image: wordpress:latest
     # relative location of Dockerfile used to build the Docker image for wordpress service; 
     # defines the build process for Docker image
-    build: ./requirements/wordpress/
+    build:
+      context: ./requirements/wordpress
+      dockerfile: Dockerfile
     # location where wordpress DB files will be stored;
     # ensures that data persists across container restarts;
     # volume that maps a named volume 'wpfiles' to the directory /var/www/inception/ inside the container
     volumes:
-      - wpfiles:/var/www/inception/
+      - wpfiles:/var/www/ince/
     ports:
-      - '9000:9000'
+      - "9000:9000"
     # network(s) joined by wordpress
     # the all network should be defined elsewhere in the Docker Compose file
     networks:
       - incep
-    # runs the setup.sh (initialization) shell script before starting the mains process of the container
-    init: true
     # restarts the container when a failure occur (if it exits with a non-zero code) - restart policy
     restart: on-failure
     # file from which to read environment variables
     env_file:
-      - .env
+      - ./.env
     # all container dependencies for wordpress; 
     # indicates that this container does not start before the mariadb container is running
     depends_on:
@@ -72,35 +74,22 @@ services:
   nginx:
     # service name
     container_name: nginx
-    # image: nginx
+    image: nginx:latest
     # relative location of Dockerfile used to build the Docker image for nginx service;
     # defines the build process for Docker image
     build:
       # specifies the directory containing the Dockerfile and other important files from the nginx container
-      context: ./requirements/nginx/
-      # the args sub-section allows passing build-time variables to the Docker build process
-      # this variables are referenced in the Dockerfile using  ARG instructions
-      args:
-        # this variables values are taken from the environment
-        # these arguments are usually used to configure SSL certificates and other setting necessary for the nginx service
-        CERT_FOLDER: ${CERT_FOLDER}
-        CERTIFICATE: ${CERTIFICATE}
-        KEY: ${KEY}
-        COUNTRY: ${COUNTRY}
-        STATE: ${STATE}
-        LOCALITY: ${LOCALITY}
-        ORGANIZATION: ${ORGANIZATION}
-        UNIT: ${UNIT}
-        COMMON_NAME: ${COMMON_NAME}
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
     # maps port 443 on the host machine to port 443 in the container;
     # port 443 is the standard port for HTTPS traffic , commonly used by nginx when serving secure content
     ports:
-      - '443:443'
+      - "443:443"
     # location where nginx DB files will be stored;
     # ensures that data persists across container restarts;
     # volume that maps a named volume 'wpfiles' to the directory /var/www/inception/ inside the container
     volumes:
-      - wpfiles:/var/www/inception/
+      - wpfiles:/var/www/ince/
     # network used by nginx
     networks:
       - incep
@@ -109,7 +98,7 @@ services:
     restart: on-failure
     # file in which the environment variables can be found
     env_file:
-      - .env
+      - ./.env
     # all container dependencies for nginx;
     # indicates that this container does not start before the wordpress container is running
     depends_on:

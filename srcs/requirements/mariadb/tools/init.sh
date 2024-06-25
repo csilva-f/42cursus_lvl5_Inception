@@ -19,37 +19,27 @@
 # starts the mariadb within the container and ensures it is running so that the subsequent commands can interact with the database
 service mariadb start
 
-# automated setup and configuration of MariaDB inside a Docker container
-# it checks if the directory alredy exists; if so, it performs several security-related tasks to ensure a fresh MariaDB installation
-if [ ! -d "/var/lib/mysql/$DB_NAME" ]; then
-mysql_secure_installation << EOF
-$WP_ADMIN_PASS
-y
-n
-y
-y
-y
-y
-EOF
-fi
+# Wait for the service to start properly
+sleep 5
 
 # 1: starts a MySQL/MariaDB client session (mariadb) with the root user, then opens a heredoc to input multiple lines until the EOF encounter
-# 2: creates the DB with the stored name from env, if it does not already exist
-# 3: creates the DB user with the stored varible from en, if it does not already exist
-# 4: grants all DB privileges to the DB user with the respective password stored in env
-# 5: grants all DB privileges to the root user with the respective password stored in env
-# 6: sets the password for the root user with the value stored in env  specifically when connecting from localhost; enforces authentication for admin access to the DB server, so this way not everyone can access to the system
+# -v: verbose mode, which means it will show more detailed output
+# -u: flag associated with the specification of a user
+# 2: creates the DB with the stored name and respective password from env, if it does not already exist
+# 3: creates the DB user with the stored varibles from env, if it does not already exist
+# 5: grants all DB privileges to the DB user according to its assigned password
+# 6: grants all DB privileges to the DB root user according to its assigned password
+# 7: password setting for the root user to access the DB
 mariadb -v -u root << EOF
 CREATE DATABASE IF NOT EXISTS $DB_NAME;
 CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD';
 GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD';
-GRANT ALL PRIVILEGES ON $DB_NAME.* TO 'root'@'%' IDENTIFIED BY '$DB_PASS_ROOT';
-SET PASSWORD FOR 'root'@'localhost' = PASSWORD('$DB_PASS_ROOT');
-FLUSH PRIVILEGES;
+GRANT ALL PRIVILEGES ON $DB_NAME.* TO 'root'@'%' IDENTIFIED BY '$DB_PASSWORD_ROOT';
+SET PASSWORD FOR 'root'@'localhost' = PASSWORD('$DB_PASSWORD_ROOT');
 EOF
 
-# pauses execution of the script, so that it allows time for the DB operations initiatedi by the mariadb client to complete before stopping the service
-sleep 5
+# pauses execution of the script, so that it allows time for the DB operations initialize by the mariadb client, so that they complete before stopping the service
+sleep 10
 
 # stops the mariadb service; it is a good practice to stop services after initial setup to ensure they can restart cleanly when the container starts again
 service mariadb stop

@@ -12,9 +12,9 @@ FROM    debian:bullseye
 # the word EXPOSE doesn't publish the port, it only indicates which ports are intended to be published
 # allows services running inside the container to be accessible outside of it (such as the PHP-FPM)
 # informs docker compose about the ports that need to be connected between containers
-# EXPOSE	9000
+EXPOSE	9000
 
-# defines a build-time variables which sets the version and path to the PHP-FPM configuration directory
+# defines a build-time variables which set the version and path to the PHP-FPM configuration directory
 ARG		PHP_VERSION=7.4
 ARG		PHPPATH=/etc/php/${PHP_VERSION}/fpm
 
@@ -43,39 +43,33 @@ RUN		apt update && apt install --no-install-recommends --no-install-suggests -y 
 		rm -rf /var/lib/apt/lists/* \
 		&& apt-get clean
 
-# stops the PHP-FPM service if it's running; might be necessary to apply configuration changes before restarting it later
-# RUN		service php${PHP_VERSION}-fpm stop
-
-# Create necessary directories and set permissions
-# RUN mkdir -p /var/www/html
-
-# copies the custom PHP-FPM pool configuration file from the host machine into the container at the specified path
-# ensures that PHP-FPM is configured correctly. this step is crucial for tuning PHP-FPM's behaviour and settings
+# copies the configuration file to the container's php folder 
+# ensures that PHP-FPM is configured correctly. This step is crucial for tuning PHP-FPM’s behavior and settings
+# the www.conf file is part of the PHP-FPM configuration and is typically located in the pool.d directory (or similar) within the PHP installation directory.
 COPY	conf/www.conf ${PHPPATH}/pool.d/
 
+# downloads the WP-CLI PHP Archive file from the web, without checking the SSL certificate of the URL
+# changes the permissions of the downloaded file in order to make it executable
+# moves the file to the indicated directory, making it accessible system-wide as a command
 RUN		wget --no-check-certificate https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 		chmod +x wp-cli.phar && \
 		mv wp-cli.phar /usr/local/bin/wp
 
 # Ensures that required directories exist for PHP-FPM and WordPress operations and changes its owner to www-data user, ensuring that WordPress files can be read and written by the PHP-FPM process securely.
-RUN		mkdir -p /run/php/ && \
-		mkdir -p /var/run/php/ && \
-		mkdir -p /var/www/inception/
-
+#The www-data user and group are commonly used by web servers (like Nginx) to run web applications.
 # changes the ownership of the directory and its contents (-R) to the www-data user and group, which is the default user for web servers like Apache and Nginx
-RUN		chown -R www-data:www-data /var/www/inception/
+RUN     mkdir -p /run/php/ /var/run/php/ /var/www/ince/ \
+        && chown -R www-data:www-data /var/www/ince/
 
 # copies the wp-config.php and init.sh files to the container and changes their permissions
 # it prepares the container for configuring and running WordPress upon startup
-COPY	conf/wp-config.php 	/tmp/
-COPY	tools/init.sh 		/bin/
-COPY	conf/www.conf 		/tmp/
+COPY    ./conf/wp-config.php /var/www/ince/
+COPY    ./tools/init.sh /bin/
 
-RUN chmod 755 /tmp/www.conf
-RUN chmod 755 /bin/init.sh
-RUN chmod 755 /tmp/wp-config.php
+#Give the initialization script permisssion to executed by user
+RUN     chmod 755 /bin/init.sh
 
 # runs the init.sh script when the container starts
 # then starts the php.fpm7.4 in the foreground - PHP FastCGI Process Manager, a daemon that manages FastCGI processes for handling PHP requests.
 # --nodaemonize: tells php-fpm7.4 to run in the foreground rather than as a background daemon (common practice, allows the container to stay alive as long as the main process is running; when the main process runs in the foreground, Docker can manage the container lifecycle based on the status of that process; if the process stops, the container will stop)
-CMD		["init.sh", "php-fpm7.4", "--nodaemonize"]
+CMD		["/bin/init.sh", "php-fpm7.4", "--nodaemonize"]

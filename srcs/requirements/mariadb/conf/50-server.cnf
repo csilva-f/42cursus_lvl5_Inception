@@ -7,6 +7,8 @@
 # See the examples of server my.cnf files in /usr/share/mysql/
 #
 
+# daemon: background process that runs on a computer system, typically without direct user interaction; designed to perform specific functions, often related to system maintenance, network communication, or service provision.
+# a program that runs autonomously in the background.
 # this is read by the standalone daemon and embedded servers
 # standalone daemon: typical deployment scenario where mariadb is installed and running as a dedicated DB server process; in this mode the DB server operates independently, serving client requests over network connections or locally via Unix sockets
 # embebed server: DB engine can run within the same process space as the app itself, rather than as a separate standalone process; this mode is useful for apps that requeire lightweight, integrated DB solution without the overhead of a separate DB server process
@@ -21,10 +23,10 @@
 # these setting ensure the proper operation, performance and security of the DB server
 user		= mysql
 # path to the PID file for the running MariaDB server process
-pid-file	= /run/mysqld/mysqld.pid
+pid-file	= /var/run/mysqld/mysqld.pid
 # defines the Unix socket file used for the local client-server communication (inside a network)
 # enables a secure communication between the MariaDB clients and the server running on the same host without involving a network itself
-socket		= /run/mysqld/mysqld.sock
+socket		= /var/run/mysqld/mysqld.sock
 # specifies the TCP/IP (logical endpoint for communication in a network) port number on which the server listens for client connections
 port		= 3306
 # base directory where MariaDB binaries and libraries are located
@@ -40,6 +42,7 @@ lc-messages-dir	= /usr/share/mysql
 
 # Instead of skip-networking the default is now to listen only on
 # localhost which is more compatible and is not less secure.
+# configures the server to be executable in all IP addresses
 # bind-address		= 127.0.0.1
 
 #
