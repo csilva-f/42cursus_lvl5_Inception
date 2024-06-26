@@ -24,9 +24,9 @@ services:
     # the all network should be defined elsewhere in this Docker Compose file
     networks:
       - incep
-    secrets:
-      - db_password
-      - db_root_password
+    #secrets:
+    #  - db_password
+    #  - db_root_password
     # runs the init.sh (initialization) shell script before starting the main process of the container
     init: true
     # restarts the container when a failure occur (if it exits with a non-zero code) - restart policy
@@ -155,8 +155,8 @@ networks:
     # default driver used; enables isolated communication between containers attached to this network on the same Docker host
     driver: bridge
 
-secrets:
-  db_password:
-    file: ../secrets/db_password
-  db_root_password:
-    file: ../secrets/db_root_password
+# secrets:
+#   db_password:
+#     file: ../secrets/db_password
+#   db_root_password:
+#     file: ../secrets/db_root_password

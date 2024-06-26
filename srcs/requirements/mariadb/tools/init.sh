@@ -13,8 +13,8 @@
 # DB_PASSWORD=123456
 # DB_PASS_ROOT=123456
 
-export DB_PASSWORD=$(cat /run/secrets/db_password)
-export DB_PASSWORD_ROOT=$(cat /run/secrets/db_root_password)
+#export DB_PASSWORD=$(cat /run/secrets/db_password)
+#export DB_PASSWORD_ROOT=$(cat /run/secrets/db_root_password)
 
 # starts the mariadb within the container and ensures it is running so that the subsequent commands can interact with the database
 service mariadb start
