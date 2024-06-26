@@ -1,0 +1,68 @@
+>> Docker
+- What is Docker?
+Docker is an open-source platform designed to automate the deployment, scaling, and management of applications. It uses containerization to create lightweight, portable, and self-sufficient containers from any application.
+
+Images and Containers:
+
+    Image: A Docker image is a read-only template with instructions for creating a Docker container. It includes everything needed to run an application, such as the code, runtime, libraries, environment variables, and configuration files.
+    Container: A container is a runtime instance of an image. While an image is a static file, a container is a live, running instance of it.
+
+>> Dockerfile
+
+    A Dockerfile is a script containing a series of commands to build a Docker image. It starts with a base image and adds layers, which can include copying files, installing dependencies, and setting environment variables.
+    
+Docker Compose
+What is Docker Compose?
+
+Docker Compose is a tool for defining and running multi-container Docker applications. It uses a YAML file to configure the application’s services, networks, and volumes.
+
+>> What is the difference between an image used with docker compose and without docker compose?
+
+Lies in how the images are orchestrated and managed rather than any intrinsic difference in the images themselves. 
+
+- Without Docker Compose
+Standalone Container:
+    You use Docker CLI commands to manage individual containers.
+Manual Handling (management):
+    Need of manually managing and running commands for each container.
+    Starting, stopping, and networking containers must be done individually.
+    Interaction between multiple containers happens by linking them manually.
+Individual Configurations:
+    Each container’s configuration (port mappings, env variables, volumes, networks) is specified through command-line options or Dockerfiles.
+    Need to repeat configurations for every container run.
+    
+- With Docker Compose
+Multi-Container Application:
+    Docker Compose is used to manage multiple containers that together make up an application.
+    Handles the orchestration of starting, stopping, and linking containers based on the definitions in the docker-compose.yml file.
+    Manage the entire application stack with single commands (docker-compose up, docker-compose down).
+Centralized Configuration:
+    The docker-compose.yml file centralizes the configuration of all containers, making it easier to manage and review.
+    Environment variables, networks, volumes, and other configurations are defined in one place.
+    Compose handles dependencies and ensures services start in the correct order.
+    
+>> What is the benefit of Docker compared to VMs?
+Docker and Virtual Machines (VMs) are both technologies used to isolate applications and run them in separate environments.
+
+Aspect			Docker				Virtual Machines
+Resource Efficiency	Lightweight, lower overhead	Requires full OS per instance,
+							higher overhead
+Startup Time		Near-instant startup		Minutes to boot full OS
+Performance		Better performance, 		Lower performance due to
+			higher density	 		full OS overhead
+Portability		Highly portable across 		Less portable due to different
+			environments	 		OS requirements
+Development/Deployment	Simplified CI/CD, rapid 	More complex CI/CD processes
+			prototyping	
+Isolation		Process and file system 	Stronger isolation with full
+			isolation	 		OS separation
+Security		Improved security features, 	Strong security with full OS
+			but less isolated	 	isolation
+Management		Easy orchestration with Docker 	Orchestration available but more
+			Swarm/Kubernetes	 	complex
+Cost Efficiency		Lower licensing and 		Higher licensing and 
+			infrastructure costs		infrastructure costs
+
+>> Docker Network
+	Docker networking enables containers to interact with each other and external systems. It provides communication channels for containers running on the same or different hosts.
+	Bridge Network: The default network type. Containers on the same bridge network can communicate with each other using their container name or IP address. It is ideal for applications that run on a single Docker host.
