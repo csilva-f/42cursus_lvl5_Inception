@@ -15,10 +15,10 @@ EXPOSE	3306
 # apt update: updates the package index inside the Docker image - ensures latest version of the packages
 # apt install -y ..: installs mariadb server package without recommended or suggested packages
 # rm -rf ...: cleans up the package cache to reduce the size of the Docker image
-RUN		apt update && \
-		apt install -y --no-install-recommends --no-install-suggests \
-		mariadb-server && \
-		rm -rf /var/lib/apt/lists/*
+RUN		apt update \
+		&& apt install -y --no-install-recommends --no-install-suggests \
+		mariadb-server \
+		&& rm -rf /var/lib/apt/lists/*
 
 # creates the directory /var/run/mysqld;
 # -p: tells mkdir to create the directory and any necessary parent directories if they do not already exist; this directory is needed in the image, so that mariadb is able to store runtime files such as PID files and sockets
@@ -27,9 +27,9 @@ RUN		apt update && \
 # /var/lib/mysql is where mariadb stores its database files
 # this part is needed because mariadb needs to access the runtime directory to create and manage files such as the socket file, or it may fail to start;
 # running mariadb under mysql user instead of the root user adheres to the principle of least privilege, reducing the risk of security vulnerabilities, preventing unauthorized access
-RUN mkdir -p /var/run/mysqld && \
-    chown -R mysql:mysql /var/run/mysqld && \
-    chown -R mysql:mysql /var/lib/mysql
+RUN mkdir -p /var/run/mysqld \
+    && chown -R mysql:mysql /var/lib/mysql \
+    && chown -R mysql:mysql /var/run/mysqld
 
 # copies a configuration file into the Docker image
 COPY	conf/50-server.cnf /etc/mysql/mariadb.conf.d/
@@ -38,7 +38,7 @@ COPY	conf/50-server.cnf /etc/mysql/mariadb.conf.d/
 COPY	tools/init.sh /bin/
 
 # changes the permissions of the init.sh script file to make it executable inside the Docker image
-RUN		chmod +x /bin/init.sh
+RUN		chmod 755 /bin/init.sh
 
 # specifies the command to run when the container is started from this image
 # init.sh: executes the initialization script

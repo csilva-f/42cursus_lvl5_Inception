@@ -1,15 +1,12 @@
 NAME = inception
 COMPOSE = ./srcs/docker-compose.yml
-DIR_PATH ?= /home/csilva-f/data
 
+all: folders up 
 
-all: dir up 
-
-# Create necessary directories for MariaDB and WordPress data
-dir:
-	sudo mkdir -p $(DIR_PATH)
-	sudo mkdir -p $(DIR_PATH)/database
-	sudo mkdir -p $(DIR_PATH)/wpfiles
+folders:
+	sudo mkdir -p /home/csilva-f/data
+	sudo mkdir -p /home/csilva-f/data/mdbfiles
+	sudo mkdir -p /home/csilva-f/data/wpfiles
 
 up:
 	docker compose -p $(NAME) -f $(COMPOSE) up --build -d
@@ -32,4 +29,4 @@ fclean: clean
 	@sudo rm -rf /home/csilva-f/data
 	@docker system prune -a
 
-re: fclean dir up
+re: fclean folders up

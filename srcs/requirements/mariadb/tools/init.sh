@@ -8,13 +8,13 @@
 # allows starting the database, and sets up its databases, users and permissions, loading initial data and configurations
 # this script integrates with the container's CMD instruction to run the main application process after the initialization steps are completed, ensuring that the application starts in a properly configured state
 
-# this line, if uncommented, enables the debug mode, making the script print each command executing it and exit if any of it returns a non-zero status
-# set -ex # print commands & exit on error (debug mode)
-
 # DB_NAME=maria
 # DB_USER=umaria
-# DB_PASSWORD=abc
-# DB_PASS_ROOT=cba
+# DB_PASSWORD=123456
+# DB_PASS_ROOT=123456
+
+export DB_PASSWORD=$(cat /run/secrets/db_password)
+export DB_PASSWORD_ROOT=$(cat /run/secrets/db_root_password)
 
 # starts the mariadb within the container and ensures it is running so that the subsequent commands can interact with the database
 service mariadb start

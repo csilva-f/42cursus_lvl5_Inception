@@ -29,11 +29,6 @@ ARG		PHPPATH=/etc/php/${PHP_VERSION}/fpm
 # tar: installs tar (Tape Archive), a tool for extracting and creating tar archives for files. In this Dockerfile it;t used to extract the downloaded WordPress archive (latest.tar.gz)
 # rm -rf ...: cleans up the package cache to reduce the image size
 # apt-get clean: removes all cached .deb packages from the local rep cache
-
-# FPM = FastCGI Process Manager;
-# CGI (Common Gateway Interface) is a standard protocol that defines how web servers communicate with external programs or scripts to generate dynamic web content or perform other server-side tasks.
-# FPM (FastCGI Process Manager) is an alternative PHP FastCGI implementation that offers several advantages over and more efficiency then traditional CGI-based methods
-
 RUN		apt update && apt install --no-install-recommends --no-install-suggests -y \
 		ca-certificates \
 		php${PHP_VERSION}-fpm \
@@ -63,13 +58,13 @@ RUN     mkdir -p /run/php/ /var/run/php/ /var/www/ince/ \
 
 # copies the wp-config.php and init.sh files to the container and changes their permissions
 # it prepares the container for configuring and running WordPress upon startup
-COPY    ./conf/wp-config.php /var/www/ince/
-COPY    ./tools/init.sh /bin/
+COPY    ./conf/wp-config.php 	/var/www/ince/
+COPY    ./tools/init.sh 	/tmp/
 
 #Give the initialization script permisssion to executed by user
-RUN     chmod 755 /bin/init.sh
+RUN     chmod 755 /tmp/init.sh
 
 # runs the init.sh script when the container starts
 # then starts the php.fpm7.4 in the foreground - PHP FastCGI Process Manager, a daemon that manages FastCGI processes for handling PHP requests.
 # --nodaemonize: tells php-fpm7.4 to run in the foreground rather than as a background daemon (common practice, allows the container to stay alive as long as the main process is running; when the main process runs in the foreground, Docker can manage the container lifecycle based on the status of that process; if the process stops, the container will stop)
-CMD		["/bin/init.sh", "php-fpm7.4", "--nodaemonize"]
+CMD		["/tmp/init.sh", "php-fpm7.4", "--nodaemonize"]
